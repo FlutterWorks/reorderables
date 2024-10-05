@@ -352,7 +352,7 @@ class _ReorderableWrapContent extends StatefulWidget {
     this.scrollAnimationDuration = const Duration(milliseconds: 200),
     required this.enableReorder
   });
-
+  
   final List<Widget>? header;
   final Widget? footer;
   final ScrollController? controller;
@@ -497,7 +497,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
   @override
   void didChangeDependencies() {
     _scrollController = widget.controller ??
-        PrimaryScrollController.of(context) ??
+        PrimaryScrollController.maybeOf(context) ??
         ScrollController();
     super.didChangeDependencies();
   }
@@ -536,10 +536,10 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
 
   // Scrolls to a target context if that context is not on the screen.
   void _scrollTo(BuildContext context) {
-    if (_scrolling) return;
+    if (_scrolling || !_scrollController.hasClients) return;
     final RenderObject contextObject = context.findRenderObject()!;
     final RenderAbstractViewport viewport =
-        RenderAbstractViewport.of(contextObject)!;
+        RenderAbstractViewport.of(contextObject);
     // If and only if the current scroll offset falls in-between the offsets
     // necessary to reveal the selected context at the top or bottom of the
     // screen, then it is already on-screen.
@@ -1228,7 +1228,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
     }
 
     if (widget.controller != null &&
-        PrimaryScrollController.of(context) == null) {
+        PrimaryScrollController.maybeOf(context) == null) {
       return (widget.buildItemsContainer ?? defaultBuildItemsContainer)(
           context, widget.direction, wrappedChildren);
     } else {
